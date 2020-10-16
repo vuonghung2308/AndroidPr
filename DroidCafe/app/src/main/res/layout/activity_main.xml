@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/text_intro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Droid Desserts"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/image_donut"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:onClick="orderDonut"
+        android:src="@drawable/donut_circle"
+        app:layout_constraintEnd_toStartOf="@+id/text_intro"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/text_intro" />
+
+    <ImageView
+        android:id="@+id/image_froyo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:onClick="orderFroyo"
+        android:src="@drawable/froyo_circle"
+        app:layout_constraintEnd_toStartOf="@+id/image_icecream"
+        app:layout_constraintStart_toEndOf="@+id/image_donut"
+        app:layout_constraintTop_toBottomOf="@+id/text_intro" />
+
+    <ImageView
+        android:id="@+id/image_icecream"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:onClick="orderIcecream"
+        android:src="@drawable/icecream_circle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/text_intro"
+        app:layout_constraintTop_toBottomOf="@id/text_intro" />
+
+    <TextView
+        android:id="@+id/text_donut"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/text_donut"
+        app:layout_constraintEnd_toEndOf="@+id/image_donut"
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toStartOf="@+id/image_donut"
+        app:layout_constraintTop_toBottomOf="@+id/image_donut" />
+
+    <TextView
+        android:id="@+id/text_froyo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/text_froyo"
+        app:layout_constraintEnd_toEndOf="@+id/image_froyo"
+        app:layout_constraintStart_toStartOf="@+id/image_froyo"
+        app:layout_constraintTop_toBottomOf="@+id/image_froyo" />
+
+    <TextView
+        android:id="@+id/text_icecream"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/text_icecream"
+        android:layout_marginTop="20dp"
+        app:layout_constraintEnd_toEndOf="@+id/image_icecream"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/image_icecream"
+        app:layout_constraintTop_toBottomOf="@+id/image_icecream" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/floatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:backgroundTint="@color/purple_700"
+        android:src="@drawable/ic_shopping_card"
+        android:tint="#E91E63"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
