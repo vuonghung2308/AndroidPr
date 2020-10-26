@@ -17,8 +17,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
-     {
+class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener,
+    LocationAdapter.Listenner {
 
 
     lateinit var name: String
@@ -46,7 +46,7 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
         longitude = intent.getStringExtra(MainActivity.EXTRA_TEXTLONGITUDE)!!
         rvLocation = findViewById(R.id.rvLocation)
         locationAdapter = LocationAdapter(this)
-//        locationAdapter.listenner = this
+        locationAdapter.listenner = this
         rvLocation.adapter = locationAdapter
         rvLocation.layoutManager = LinearLayoutManager(parent)
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
@@ -99,9 +99,9 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
 //        }, 2500)
     }
 
-//    override fun onButtonClick() {
-////        count += 10
-////        callApi(lagitude, longitude, { loadRecycleView(it) })
-//    }
+    override fun onButtonClick() {
+        count += 10
+        callApi(lagitude, longitude, { loadRecycleView(it) })
+    }
 
 }

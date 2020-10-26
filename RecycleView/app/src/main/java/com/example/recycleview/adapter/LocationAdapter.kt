@@ -38,7 +38,7 @@ class LocationAdapter(val context: Context) :
     }
 
     fun show() {
-        for(location in list) {
+        for (location in list) {
             Log.d("links", location.link)
         }
     }
@@ -57,8 +57,19 @@ class LocationAdapter(val context: Context) :
         val textViewLongitude = itemView.findViewById<TextView>(R.id.textview_longitude)
     }
 
-    inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val addButton = view.findViewById<Button>(R.id.button_addMore)
+    inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        var addButton: Button
+        var listennerRef: WeakReference<Listenner>
+
+        init {
+            addButton = view.findViewById(R.id.button_addMore)
+            listennerRef = WeakReference(listenner)
+            addButton.setOnClickListener(this)
+        }
+
+        override fun onClick(view: View?) {
+            listennerRef.get()?.onButtonClick()
+        }
 //        var listennerRef: WeakReference<Listenner>
 
 //        init {
@@ -98,7 +109,7 @@ class LocationAdapter(val context: Context) :
             }
             else -> {
                 (holder as ButtonHolder).addButton.visibility = View.VISIBLE
-                (holder as ButtonHolder).addButton.setOnClickListener { listenner }
+//                (holder as ButtonHolder).addButton.setOnClickListener { listenner }
             }
         }
     }
