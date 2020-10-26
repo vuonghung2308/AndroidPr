@@ -40,6 +40,7 @@ class MainActivity : AppCompatActivity() {
             putExtra(EXTRA_TEXTLAGITUDE, lagitudeText.text.toString())
             putExtra(EXTRA_TEXTLONGITUDE, longitudeText.text.toString())
         }
+        view.setOnClickListener {  }
         startActivity(intent)
     }
 }

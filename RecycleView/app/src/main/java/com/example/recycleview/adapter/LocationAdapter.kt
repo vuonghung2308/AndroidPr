@@ -1,6 +1,7 @@
 package com.example.recycleview.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.recycleview.R
 import com.example.recycleview.data.Location
+import java.lang.ref.WeakReference
 
 class LocationAdapter(val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -19,12 +21,26 @@ class LocationAdapter(val context: Context) :
         val BUTTON_ITEM = 1
     }
 
-    var list: ArrayList<Location> = ArrayList()
+    interface Listenner {
+        fun onButtonClick()
+    }
 
+    val list: ArrayList<Location> = ArrayList()
+    var listenner: Listenner? = null
+        set(value) {
+            field = value
+        }
 
     fun reloadView(newList: List<Location>) {
+        list.clear()
         list.addAll(newList)
         notifyDataSetChanged()
+    }
+
+    fun show() {
+        for(location in list) {
+            Log.d("links", location.link)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -43,6 +59,16 @@ class LocationAdapter(val context: Context) :
 
     inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view) {
         val addButton = view.findViewById<Button>(R.id.button_addMore)
+//        var listennerRef: WeakReference<Listenner>
+
+//        init {
+//            listennerRef = WeakReference(listenner)
+//            addButton.setOnClickListener(this)
+//        }
+//
+//        override fun onClick(v: View?) {
+//            listennerRef.get()?.onButtonClick()
+//        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -71,7 +97,8 @@ class LocationAdapter(val context: Context) :
                 Glide.with(holder.imageLocation).load(location.link).into(holder.imageLocation)
             }
             else -> {
-//                (holder as ButtonHolder).addButton.addOnCli
+                (holder as ButtonHolder).addButton.visibility = View.VISIBLE
+                (holder as ButtonHolder).addButton.setOnClickListener { listenner }
             }
         }
     }

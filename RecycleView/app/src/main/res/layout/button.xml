@@ -11,6 +11,7 @@
         android:layout_gravity="right|bottom"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:text="Load More" />
+        android:text="Load More"
+        android:visibility="invisible"/>
 
 </LinearLayout>

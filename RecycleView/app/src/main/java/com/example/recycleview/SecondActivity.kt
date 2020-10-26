@@ -17,7 +17,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener {
+class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
+     {
 
 
     lateinit var name: String
@@ -26,6 +27,7 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
     lateinit var rvLocation: RecyclerView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var locationAdapter: LocationAdapter
+    var count = 1
 
     var list = ArrayList<Location>()
     val response by lazy {
@@ -44,7 +46,7 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
         longitude = intent.getStringExtra(MainActivity.EXTRA_TEXTLONGITUDE)!!
         rvLocation = findViewById(R.id.rvLocation)
         locationAdapter = LocationAdapter(this)
-        locationAdapter.list = list
+//        locationAdapter.listenner = this
         rvLocation.adapter = locationAdapter
         rvLocation.layoutManager = LinearLayoutManager(parent)
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
@@ -54,7 +56,7 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
     }
 
     fun callApi(lat: String, lon: String, call: (res: Page) -> Unit) {
-        val resl = response.getPhotos(
+        response.getPhotos(
             MainActivity.METHOD,
             MainActivity.API_KEY,
             lat,
@@ -81,10 +83,12 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
 //    }
 
     fun loadRecycleView(res: Page) {
-        for (i in 0..10) {
+        for (i in count..count + 9) {
             list.add(Location(name, lagitude, longitude, res.photos.photo[i].getLink()))
+            Log.d("size", list.size.toString())
         }
         locationAdapter.reloadView(list)
+        locationAdapter.show()
     }
 
     override fun onRefresh() {
@@ -94,5 +98,10 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
 //            }
 //        }, 2500)
     }
+
+//    override fun onButtonClick() {
+////        count += 10
+////        callApi(lagitude, longitude, { loadRecycleView(it) })
+//    }
 
 }
