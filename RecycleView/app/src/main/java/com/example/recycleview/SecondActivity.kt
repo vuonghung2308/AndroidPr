@@ -1,107 +1,115 @@
 package com.example.recycleview
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.example.recycleview.flick.FlickApi
-import com.example.recycleview.data.Location
 import com.example.recycleview.adapter.LocationAdapter
-import com.example.recycleview.data.Page
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import com.example.recycleview.data.Location
+import com.example.recycleview.data.PlacePhotos
+import com.example.recycleview.flickr.FilckrCall
 
+class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
+/*, LocationAdapter.Listenner sử dụng button trong LocationAdapter để load more*/ {
 
-class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener,
-    LocationAdapter.Listenner {
+    private val name by lazy { intent.getStringExtra(MainActivity.EXTRA_TEXTNAME).toString() }
+    private val lat by lazy { intent.getStringExtra(MainActivity.EXTRA_TEXTLAT).toString() }
+    private val lon by lazy { intent.getStringExtra(MainActivity.EXTRA_TEXTLON).toString() }
+    private val locationAdapter by lazy { LocationAdapter() }
+    private var count = 0
+    private var isLoading = false
+    private lateinit var placePhotos: PlacePhotos
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
 
-
-    lateinit var name: String
-    lateinit var lagitude: String
-    lateinit var longitude: String
-    lateinit var rvLocation: RecyclerView
-    lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    lateinit var locationAdapter: LocationAdapter
-    var count = 1
-
-    var list = ArrayList<Location>()
-    val response by lazy {
-        Retrofit.Builder()
-            .baseUrl(MainActivity.BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(FlickApi::class.java)
+    inner class scrollEnd : RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+            val total = layoutManager.itemCount
+            val lastVisible = layoutManager.findLastVisibleItemPosition()
+            if (!isLoading && lastVisible == total - 1) {
+                isLoading = true
+                Handler(Looper.myLooper()!!).postDelayed({
+                    loadMore()
+                    isLoading = false
+                }, 1000)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_second)
-        name = intent.getStringExtra(MainActivity.EXTRA_TEXTNAME)!!
-        lagitude = intent.getStringExtra(MainActivity.EXTRA_TEXTLAGITUDE)!!
-        longitude = intent.getStringExtra(MainActivity.EXTRA_TEXTLONGITUDE)!!
-        rvLocation = findViewById(R.id.rvLocation)
-        locationAdapter = LocationAdapter(this)
-        locationAdapter.listenner = this
-        rvLocation.adapter = locationAdapter
-        rvLocation.layoutManager = LinearLayoutManager(parent)
+        recyclerView = findViewById(R.id.rvLocation)
         swipeRefreshLayout = findViewById(R.id.swipe_refresh_layout)
+        recyclerView.addOnScrollListener(scrollEnd())
         swipeRefreshLayout.setOnRefreshListener(this)
-        callApi(lagitude, longitude, { loadRecycleView(it) })
-        Log.d("list", list.size.toString())
-    }
-
-    fun callApi(lat: String, lon: String, call: (res: Page) -> Unit) {
-        response.getPhotos(
-            MainActivity.METHOD,
-            MainActivity.API_KEY,
-            lat,
-            lon,
-            "json",
-            "1"
-        ).enqueue(object : Callback<Page> {
-            override fun onResponse(call: Call<Page>, response: Response<Page>) {
-                val res = response.body() as Page
-                call(res)
-            }
-
-            override fun onFailure(call: Call<Page>, t: Throwable) {
-                Log.d("onFailure", t.toString())
-            }
-        })
-    }
-
-//    fun addToList(res: Page): List<Location> {
-//        var list = ArrayList<Location>()
-//        for (photo in res.photos.photo)
-//            list.add(Location(name, lagitude, longitude, photo.getLink()))
-//        return list
-//    }
-
-    fun loadRecycleView(res: Page) {
-        for (i in count..count + 9) {
-            list.add(Location(name, lagitude, longitude, res.photos.photo[i].getLink()))
-            Log.d("size", list.size.toString())
+//        locationAdapter.listenner = this  đặt sự kiện cho button (sử dụng button để load thêm ảnh)
+        recyclerView.adapter = locationAdapter
+        recyclerView.layoutManager = LinearLayoutManager(this)
+        FilckrCall.callApi(lat, lon) {
+            placePhotos = it
+            loadRecycleView(placePhotos)
         }
-        locationAdapter.reloadView(list)
-        locationAdapter.show()
+    }
+
+    fun loadRecycleView(placePhotos: PlacePhotos, isReload: Boolean = true, num: Int = 20) {
+        val list = ArrayList<Location>()
+
+        if (placePhotos.photos.photo.isEmpty()) {
+            setResult(RESULT_OK)
+            finish()
+        }
+        if (placePhotos.photos.photo.size < count + num) {
+            for (i in count..placePhotos.photos.photo.size - 1) {
+                list.add(Location(name, lat, lon, placePhotos.photos.photo[i].getLink()))
+            }
+        } else {
+            for (i in count..count + 19)
+                list.add(Location(name, lat, lon, placePhotos.photos.photo[i].getLink()))
+        }
+        if (isReload)
+            locationAdapter.reloadView(list)
+        else locationAdapter.addView(list)
     }
 
     override fun onRefresh() {
-//        Handler(Looper.myLooper()!!).postDelayed(object : Runnable {
-//            override fun run() {
-//                callApi(lagitude, longitude, { loadRecycleView(it) })
-//            }
-//        }, 2500)
+        count = 0
+        FilckrCall.callApi(lat, lon) {
+            placePhotos = it
+            loadRecycleView(placePhotos)
+        }
+        swipeRefreshLayout.isRefreshing = false
     }
 
-    override fun onButtonClick() {
-        count += 10
-        callApi(lagitude, longitude, { loadRecycleView(it) })
+    fun loadMore() {
+        val con = placePhotos.photos.photo.size - (count + 20)
+        if (con >= 20) {
+            count += 20
+            loadRecycleView(placePhotos, false)
+        } else if (con <= 0) {
+            Toast.makeText(this, "No more picture!", Toast.LENGTH_SHORT).show()
+        } else {
+            count += con;
+            loadRecycleView(placePhotos, false, con)
+        }
     }
-
+//      thiết lập sự kiện cho button load thêm ảnh
+//    override fun onButtonClick() {
+//        val con = placePhotos.photos.photo.size - (count + 20)
+//        if (con >= 20) {
+//            count += 20
+//            loadRecycleView(placePhotos, false)
+//        } else if (con <= 0) {
+//            Toast.makeText(this, "No more picture!", Toast.LENGTH_SHORT).show()
+//        } else {
+//            count += con;
+//            loadRecycleView(placePhotos, false, con)
+//        }
+//    }
 }

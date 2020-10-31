@@ -11,7 +11,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RecycleView">
-        <activity android:name=".SecondActivity"></activity>
+        <activity android:name=".ThirdAcitvity"></activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDkw2aN6WoybEPonN4FCpy0q3LoTpaIXtU" />
+
+        <activity
+            android:name=".SecondActivity"
+            android:label="Place Pictures"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

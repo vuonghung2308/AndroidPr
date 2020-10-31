@@ -1,7 +1,5 @@
 package com.example.recycleview.data
 
-import com.example.recycleview.data.Photo
-
 data class Photos(
     val page: Int,
     val pages: Int,

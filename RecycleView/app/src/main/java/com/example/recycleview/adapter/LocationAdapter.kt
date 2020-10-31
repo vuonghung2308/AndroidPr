@@ -1,7 +1,5 @@
 package com.example.recycleview.adapter
 
-import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,22 +12,79 @@ import com.example.recycleview.R
 import com.example.recycleview.data.Location
 import java.lang.ref.WeakReference
 
-class LocationAdapter(val context: Context) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class LocationAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
-        val LOCATION_ITEM = 0
-        val BUTTON_ITEM = 1
+        val TYPE_ITEM = 1
+        val TYPE_BUTTON = 2
     }
+
+    private val list = ArrayList<Location>()
 
     interface Listenner {
         fun onButtonClick()
     }
 
-    val list: ArrayList<Location> = ArrayList()
     var listenner: Listenner? = null
         set(value) {
             field = value
         }
+
+    inner class ItemHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val imageView: ImageView = view.findViewById(R.id.image_location)
+        val nameLabel: TextView = view.findViewById(R.id.textview_name)
+        val latLabel: TextView = view.findViewById(R.id.textview_lagitude)
+        val lonLabel: TextView = view.findViewById(R.id.textview_longitude)
+    }
+
+    inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
+        val buttonAdd: Button
+        val listennerRef: WeakReference<Listenner>
+
+        init {
+            buttonAdd = view.findViewById(R.id.button_addMore)
+            listennerRef = WeakReference(listenner)
+            buttonAdd.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            listennerRef.get()?.onButtonClick()
+        }
+
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+        return when (viewType) {
+            TYPE_ITEM -> {
+                val view = inflater.inflate(R.layout.item_location, parent, false)
+                ItemHolder(view)
+            }
+            else -> {
+                val view = inflater.inflate(R.layout.item_button, parent, false)
+                ButtonHolder(view)
+            }
+        }
+    }
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            TYPE_ITEM -> {
+                (holder as ItemHolder).apply {
+                    nameLabel.text = list[position].name
+                    latLabel.text = list[position].lat
+                    lonLabel.text = list[position].lon
+                    Glide.with(imageView).load(list[position].link).into(imageView)
+                }
+            }
+            else -> {
+                (holder as ButtonHolder).buttonAdd.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    override fun getItemCount() = if (!list.isEmpty()) list.size else 0
+    override fun getItemViewType(position: Int) =
+        if (position < list.size) TYPE_ITEM else TYPE_BUTTON
 
     fun reloadView(newList: List<Location>) {
         list.clear()
@@ -37,80 +92,8 @@ class LocationAdapter(val context: Context) :
         notifyDataSetChanged()
     }
 
-    fun show() {
-        for (location in list) {
-            Log.d("links", location.link)
-        }
-    }
-
-    override fun getItemCount(): Int {
-        return list.size + 1
-    }
-
-    override fun getItemViewType(position: Int) =
-        if (position < list.size) LOCATION_ITEM else BUTTON_ITEM
-
-    inner class ItemHolder(listItemView: View) : RecyclerView.ViewHolder(listItemView) {
-        val imageLocation = itemView.findViewById<ImageView>(R.id.image_location)
-        val textViewName = itemView.findViewById<TextView>(R.id.textview_name)
-        val textViewLagitude = itemView.findViewById<TextView>(R.id.textview_lagitude)
-        val textViewLongitude = itemView.findViewById<TextView>(R.id.textview_longitude)
-    }
-
-    inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
-        var addButton: Button
-        var listennerRef: WeakReference<Listenner>
-
-        init {
-            addButton = view.findViewById(R.id.button_addMore)
-            listennerRef = WeakReference(listenner)
-            addButton.setOnClickListener(this)
-        }
-
-        override fun onClick(view: View?) {
-            listennerRef.get()?.onButtonClick()
-        }
-//        var listennerRef: WeakReference<Listenner>
-
-//        init {
-//            listennerRef = WeakReference(listenner)
-//            addButton.setOnClickListener(this)
-//        }
-//
-//        override fun onClick(v: View?) {
-//            listennerRef.get()?.onButtonClick()
-//        }
-    }
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        when (viewType) {
-            LOCATION_ITEM -> {
-                val locationView = inflater.inflate(R.layout.item_location, parent, false)
-                return ItemHolder(locationView)
-            }
-            else -> {
-                val buttonView = inflater.inflate(R.layout.button, parent, false)
-                return ButtonHolder(buttonView)
-            }
-        }
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder.itemViewType) {
-            LOCATION_ITEM -> {
-                val location = list.get(position)
-                (holder as ItemHolder).apply {
-                    textViewName.text = location.name
-                    textViewLagitude.text = location.lagitude
-                    textViewLongitude.text = location.longitude
-                }
-                Glide.with(holder.imageLocation).load(location.link).into(holder.imageLocation)
-            }
-            else -> {
-                (holder as ButtonHolder).addButton.visibility = View.VISIBLE
-//                (holder as ButtonHolder).addButton.setOnClickListener { listenner }
-            }
-        }
+    fun addView(newList: List<Location>) {
+        list.addAll(newList)
+        notifyItemRangeInserted(list.size - newList.size, newList.size)
     }
 }
