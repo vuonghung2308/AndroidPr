@@ -1,10 +1,12 @@
 package com.example.recycleview.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -16,7 +18,18 @@ class LocationAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     companion object {
         val TYPE_ITEM = 1
         val TYPE_BUTTON = 2
+        val TYPE_PROGRESS_BAR = 3
     }
+
+    var isLoading: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                notifyItemInserted(list.size)
+            } else {
+                notifyItemRemoved(list.size)
+            }
+        }
 
     private val list = ArrayList<Location>()
 
@@ -29,11 +42,13 @@ class LocationAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             field = value
         }
 
+    inner class ProgressHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val progressBar: ProgressBar = view.findViewById(R.id.progress_bar)
+    }
+
     inner class ItemHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView = view.findViewById(R.id.image_location)
         val nameLabel: TextView = view.findViewById(R.id.textview_name)
-        val latLabel: TextView = view.findViewById(R.id.textview_lagitude)
-        val lonLabel: TextView = view.findViewById(R.id.textview_longitude)
     }
 
     inner class ButtonHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
@@ -59,9 +74,13 @@ class LocationAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 val view = inflater.inflate(R.layout.item_location, parent, false)
                 ItemHolder(view)
             }
+//            TYPE_BUTTON -> {
+//                val view = inflater.inflate(R.layout.item_button, parent, false)
+//                ButtonHolder(view)
+//            }
             else -> {
-                val view = inflater.inflate(R.layout.item_button, parent, false)
-                ButtonHolder(view)
+                val view = inflater.inflate(R.layout.item_loading, parent, false)
+                ProgressHolder(view)
             }
         }
     }
@@ -71,20 +90,33 @@ class LocationAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             TYPE_ITEM -> {
                 (holder as ItemHolder).apply {
                     nameLabel.text = list[position].name
-                    latLabel.text = list[position].lat
-                    lonLabel.text = list[position].lon
                     Glide.with(imageView).load(list[position].link).into(imageView)
                 }
             }
+//            TYPE_BUTTON -> {
+//                (holder as ButtonHolder).buttonAdd.visibility = View.VISIBLE
+//            }
             else -> {
-                (holder as ButtonHolder).buttonAdd.visibility = View.VISIBLE
+                (holder as ProgressHolder).progressBar.visibility = View.VISIBLE
             }
+
         }
     }
 
-    override fun getItemCount() = if (!list.isEmpty()) list.size else 0
-    override fun getItemViewType(position: Int) =
-        if (position < list.size) TYPE_ITEM else TYPE_BUTTON
+    override fun getItemCount(): Int {
+        if (list.isEmpty())
+            return 0;
+        else if (isLoading) return list.size + 1;
+        else return list.size
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        return when (position) {
+            in 0..list.size - 1 -> TYPE_ITEM
+//            list.size -> TYPE_BUTTON
+            else -> TYPE_PROGRESS_BAR
+        }
+    }
 
     fun reloadView(newList: List<Location>) {
         list.clear()

@@ -33,10 +33,13 @@ class SecondActivity : AppCompatActivity(), SwipeRefreshLayout.OnRefreshListener
             val total = layoutManager.itemCount
             val lastVisible = layoutManager.findLastVisibleItemPosition()
             if (!isLoading && lastVisible == total - 1) {
+                Log.d("la", lastVisible.toString() + " " + total.toString())
                 isLoading = true
+                locationAdapter.isLoading = true;
                 Handler(Looper.myLooper()!!).postDelayed({
                     loadMore()
                     isLoading = false
+                    locationAdapter.isLoading = false;
                 }, 1000)
             }
         }

@@ -11,5 +11,5 @@ data class Photo(
     val isfriend: Int,
     val isfamily: Int,
 ) {
-    fun getLink() = "https://live.staticflickr.com/" + server + "/" + id + "_" + secret + ".jpg"
+    fun getLink() = "https://live.staticflickr.com/" + server + "/" + id + "_" + secret + "_b.jpg"
 }
