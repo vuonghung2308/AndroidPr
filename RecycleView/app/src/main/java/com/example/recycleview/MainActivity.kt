@@ -43,12 +43,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun onMapReady(gmap: GoogleMap) {
         map = gmap
-        map.setOnInfoWindowClickListener(this)
-        map.setOnInfoWindowLongClickListener(this)
-        map.setOnMapClickListener { latLng -> addMarker(latLng) }
-        map.moveCamera(CameraUpdateFactory.newLatLng(home))
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(home, 5f))
-        addMarker(home)
+//        map.setOnInfoWindowClickListener(this)
+//        map.setOnInfoWindowLongClickListener(this)
+//        map.setOnMapClickListener { latLng -> addMarker(latLng) }
+//        map.moveCamera(CameraUpdateFactory.newLatLng(home))
+//        map.animateCamera(CameraUpdateFactory.newLatLngZoom(home, 5f))
+//        addMarker(home)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
