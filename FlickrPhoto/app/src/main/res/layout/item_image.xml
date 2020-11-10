@@ -9,7 +9,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         app:cardElevation="0dp"
-        app:strokeColor="@color/purple_500"
+        app:strokeColor="@color/material_on_surface_stroke"
         app:strokeWidth="1dp">
 
         <LinearLayout
