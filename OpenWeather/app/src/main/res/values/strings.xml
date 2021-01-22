@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Open Weather</string>
+    <string name="welcome">Welcome!</string>
+    <string name="button_title">next</string>
+    <string name="weather_details">Weather Details</string>
+    <string name="get_weather">Get weather</string>
+</resources>
